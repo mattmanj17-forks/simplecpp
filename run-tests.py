@@ -117,3 +117,57 @@ print('Number of tests: ' + str(len(commands)))
 print('Number of skipped: ' + str(numberOfSkipped))
 
 sys.exit(0)
+
+"""
+
+# original skip + todo lists, which probably overlap with current skip list
+
+skip = ['assembler-with-cpp.c',
+        'builtin_line.c',
+        'c99-6_10_3_3_p4.c',
+        'clang_headers.c', # missing include <limits.h>
+        'comment_save.c', # _Pragma
+        'has_attribute.c',
+        'has_attribute.cpp',
+        'header_lookup1.c', # missing include <stddef.h>
+        'line-directive-output.c',
+        #  'macro_paste_hashhash.c',
+        'microsoft-ext.c',
+        'normalize-3.c', # gcc has different output \uAC00 vs \U0000AC00 on cygwin/linux
+        'pr63831-1.c', # __has_attribute => works differently on cygwin/linux
+        'pr63831-2.c', # __has_attribute => works differently on cygwin/linux
+        'pr65238-1.c', # __has_attribute => works differently on cygwin/linux
+        '_Pragma-location.c',
+        '_Pragma-dependency.c',
+        '_Pragma-dependency2.c',
+        '_Pragma-physloc.c',
+        'pragma-pushpop-macro.c', # pragma push/pop
+        'x86_target_features.c',
+        'warn-disabled-macro-expansion.c',
+        'ucnid-2011-1.c' # \u00A8 generates different output on cygwin/linux
+       ]
+
+todo = [
+         # todo, low priority: wrong number of macro arguments, pragma, etc
+         'macro_backslash.c',
+         'macro_fn_comma_swallow.c',
+         'macro_fn_comma_swallow2.c',
+         'macro_expand.c',
+         'macro_fn_disable_expand.c',
+         'macro_paste_commaext.c',
+         'macro_paste_hard.c',
+         'macro_rescan_varargs.c',
+
+         # todo, high priority
+         'c99-6_10_3_4_p5.c',
+         'c99-6_10_3_4_p6.c',
+         'expr_usual_conversions.c', # condition is true: 4U - 30 >= 0
+         'stdint.c',
+         'stringize_misc.c',
+
+         # GCC..
+         'diagnostic-pragma-1.c',
+         'pr45457.c',
+         'pr57580.c',
+         ]
+"""
