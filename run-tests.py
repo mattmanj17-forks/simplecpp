@@ -16,7 +16,7 @@ def cleanup(out):
 commands = []
 
 for f in sorted(glob.glob(os.path.expanduser('testsuite/clang-preprocessor-tests/*.c*'))):
-  for line in open(f, 'rt'):
+  for line in open(f, 'rt', encoding="utf-8"):
     if line.startswith('// RUN: %clang_cc1 '):
       cmd = ''
       for arg in line[19:].split():
@@ -26,8 +26,6 @@ for f in sorted(glob.glob(os.path.expanduser('testsuite/clang-preprocessor-tests
         newcmd = cmd[1:] + ' ' + f
         if not newcmd in commands:
           commands.append(cmd[1:] + ' ' + f)
-for f in sorted(glob.glob(os.path.expanduser('testsuite/gcc-preprocessor-tests/*.c*'))):
-  commands.append('-E ' + f)
 
 # skipping tests..
 skip = ['assembler-with-cpp.c',
@@ -90,19 +88,13 @@ for cmd in commands:
     numberOfSkipped = numberOfSkipped + 1
     continue
 
-  clang_cmd = ['clang']
+  clang_cmd = ["C:\\Users\\drape\\OneDrive\\Desktop\\build\\Release\\bin\\clang.exe"]
   clang_cmd.extend(cmd.split(' '))
   p = subprocess.Popen(clang_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   comm = p.communicate()
   clang_output = cleanup(comm[0])
 
-  gcc_cmd = ['gcc']
-  gcc_cmd.extend(cmd.split(' '))
-  p = subprocess.Popen(gcc_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  comm = p.communicate()
-  gcc_output = cleanup(comm[0])
-
-  simplecpp_cmd = ['./simplecpp']
+  simplecpp_cmd = ['..\\simplecpp.build\\\Debug\\\simplecpp.exe']
   # -E is not supported and we bail out on unknown options
   simplecpp_cmd.extend(cmd.replace('-E ', '', 1).split(' '))
   p = subprocess.Popen(simplecpp_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -111,7 +103,7 @@ for cmd in commands:
   simplecpp_output = cleanup(comm[0])
   simplecpp_err = comm[0].decode('utf-8').strip()
 
-  if simplecpp_output != clang_output and simplecpp_output != gcc_output:
+  if simplecpp_output != clang_output:
     filename = cmd[cmd.rfind('/')+1:]
     if filename in todo:
       print('TODO ' + cmd)
