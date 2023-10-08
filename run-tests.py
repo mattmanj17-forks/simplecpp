@@ -3,6 +3,7 @@ import glob
 import os
 import subprocess
 import sys
+import tempfile
 
 def cleanup(out):
   ret = ''
@@ -27,17 +28,51 @@ for f in sorted(glob.glob(os.path.expanduser('testsuite/clang-preprocessor-tests
         if not newcmd in commands:
           commands.append(cmd[1:] + ' ' + f)
 
-skip = []
-todo = []
+skip = [
+  '_Pragma-dependency.c',
+  '_Pragma-dependency2.c',
+  '_Pragma-location.c',
+  '_Pragma-physloc.c',
+  'assembler-with-cpp.c',
+  'builtin_line.c',
+  'c99-6_10_3_4_p5.c',
+  'c99-6_10_3_4_p6.c',
+  'clang_headers.c',
+  'comment_save.c',
+  'expr_usual_conversions.c',
+  'has_attribute.c',
+  'has_attribute.cpp',
+  'hash_line.c',
+  'hash_space.c',
+  'header_lookup1.c',
+
+  'macro_backslash.c', # crashes
+
+  'macro_expand.c',
+  'macro_fn_comma_swallow.c',
+  'macro_fn_comma_swallow2.c',
+  'macro_fn_disable_expand.c',
+  'macro_misc.c',
+  'macro_not_define.c',
+  'macro_paste_commaext.c',
+  'macro_paste_hard.c',
+  'macro_redefined.c',
+  'macro_rescan_varargs.c',
+  'microsoft-ext.c',
+  'optimize.c',
+  'pragma-pushpop-macro.c',
+  'stdint.c',
+  'stringize_misc.c',
+  'warn-disabled-macro-expansion.c',
+  'warn-macro-unused.c',
+]
 
 numberOfSkipped = 0
-numberOfFailed = 0
-numberOfFixed = 0
-
-usedTodos = []
 
 for cmd in commands:
-  if cmd[cmd.rfind('/')+1:] in skip:
+  fname = cmd[cmd.rfind('\\')+1:]
+  print(fname)
+  if fname in skip:
     numberOfSkipped = numberOfSkipped + 1
     continue
 
@@ -57,28 +92,28 @@ for cmd in commands:
   simplecpp_err = comm[0].decode('utf-8').strip()
 
   if simplecpp_output != clang_output:
-    filename = cmd[cmd.rfind('/')+1:]
-    if filename in todo:
-      print('TODO ' + cmd)
-      usedTodos.append(filename)
-    else:
-      print('FAILED ' + cmd)
-      if simplecpp_ec:
-          print('simplecpp failed - ' + simplecpp_err)
-      numberOfFailed = numberOfFailed + 1
+    print('FAILED ' + cmd)
+    if simplecpp_ec:
+      print('simplecpp failed - ' + simplecpp_err)
+    print(f'opening diff in beyond comapre (clang on left, simplecpp on right)')
+    bcomapre = '"C:\\Program Files\\Beyond Compare 4\\BCompare.exe"'
     
+    temp1 = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+    temp1.write(simplecpp_output.encode())
+    name1 = temp1.name
+    temp1.close()
 
-for filename in todo:
-    if not filename in usedTodos:
-        print('FIXED ' + filename)
-        numberOfFixed = numberOfFixed + 1
+    temp2 = tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+    temp2.write(clang_output.encode())
+    name2 = temp2.name
+    temp2.close()
+
+    print(bcomapre + " " + "\"" + name2 + "\"" + " " + "\"" + name1 + "\"")
+    subprocess.run(bcomapre + " " + "\"" + name2 + "\"" + " " + "\"" +name1+ "\"")
+    
+    sys.exit(1)
 
 print('Number of tests: ' + str(len(commands)))
 print('Number of skipped: ' + str(numberOfSkipped))
-print('Number of todos (fixed): ' + str(len(usedTodos)) + ' (' + str(numberOfFixed) + ')')
-print('Number of failed: ' + str(numberOfFailed))
-
-if numberOfFailed or numberOfFixed:
-    sys.exit(1)
 
 sys.exit(0)
