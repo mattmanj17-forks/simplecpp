@@ -9,6 +9,7 @@
 #include <cctype>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <iosfwd>
 #include <list>
 #include <map>
@@ -498,6 +499,12 @@ namespace simplecpp {
             return mData.cend();
         }
 
+        using load_callback_type = std::function<void (FileData &)>;
+
+        void set_load_callback(load_callback_type cb) {
+            mLoadCallback = std::move(cb);
+        }
+
     private:
         struct Impl;
         std::unique_ptr<Impl> mImpl;
@@ -508,6 +515,7 @@ namespace simplecpp {
 
         container_type mData;
         name_map_type mNameMap;
+        load_callback_type mLoadCallback;
     };
 
     /** Converts character literal (including prefix, but not ud-suffix) to long long value.
